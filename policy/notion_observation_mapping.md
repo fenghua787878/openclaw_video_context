@@ -2,6 +2,11 @@
 
 目标数据库：`openclaw / 文本升级与观测 / 文本升级观测`
 
+## 工具约定（来自 tool.md）
+- 调用方式：`调用 notion [command]`
+- API Key：配置于 `scripts/notion_tool.py`
+- Default Page：`311cecbc-fbf4-80d3-afa3-c3482fcb6532`（openclaw功能和任务列表）
+
 ## 字段映射（Writer -> Notion）
 - `文本ID`：`<run_id>_<script_id>`
 - `文本正文`：`runs/<run_id>/script.md` 中对应脚本正文
@@ -18,3 +23,9 @@
    - 同一 `内容方向` 下比较不同 `表达方式`
    - 再比较不同 `内容方向` 的整体表现
 4. 若样本不足（某组合小于 3 条），不做硬性升级，只记录观察。
+
+## 建议命令模板（示意）
+- 读取最近人工回填记录：`调用 notion query_database 文本升级观测 sort=最近编辑 desc filter=播放量>0`
+- 写入本轮脚本记录：`调用 notion create_page 文本升级观测 {文本ID, 文本正文, 内容方向, 表达方式}`
+
+> 具体 command 参数以运行器中 notion 工具的实际实现为准；本文件只约束字段与流程。

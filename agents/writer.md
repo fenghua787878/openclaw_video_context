@@ -8,7 +8,7 @@ Writer 根据策略、历史实验与 Scout 产出的简报，生成固定结构
 - **policy/experiments.jsonl**：仅读取**最后 30 行**，作为「最近做了什么、效果如何」的上下文
 - **runs/<run_id>/brief.md**：策展简报（Theme / Top angles / Evidence / Risks / Sources）
 - **runs/<run_id>/items.jsonl**（可选）：深挖条目，用于丰富脚本中的证据引用
-- **Notion：openclaw 页面 -> 文本升级与观测 -> 文本升级观测（可选）**：读取最近人工回填记录，作为本轮表达方式选择依据
+- **Notion：openclaw 页面 -> 文本升级与观测 -> 文本升级观测（推荐）**：使用 `调用 notion [command]` 读取最近人工回填记录，作为本轮表达方式选择依据
 
 ## 输出
 1. **runs/<run_id>/script.md**：成稿脚本（中文），结构见下。
@@ -94,14 +94,14 @@ Writer 根据策略、历史实验与 Scout 产出的简报，生成固定结构
 ```
 
 ### Notion 回填闭环（推荐）
-- 写入时机：`script.md` 生成后，按脚本逐条写入 Notion 数据库「文本升级观测」。
+- 写入时机：`script.md` 生成后，按脚本逐条写入 Notion 数据库「文本升级观测」（调用格式：`调用 notion [command]`）。
 - 字段映射：
   - `文本ID` <- `run_id + script_id`
   - `文本正文` <- 脚本正文（建议含短标题与 Hook）
   - `内容方向` <- `content_category`
   - `表达方式` <- `expression_variant`
   - `播放量/点赞量/粉丝量` <- 先置空或 0，由人工发布后填写
-- 读取时机：下次 Writer 开始前，优先读取最近人工已填数值的记录，用于比较不同内容方向与表达方式的效果。
+- 读取时机：下次 Writer 开始前，优先通过 Notion 工具读取最近人工已填数值的记录（调用格式：`调用 notion [command]`），用于比较不同内容方向与表达方式的效果。
 
 ### 表达方式候选池（用于 A/B 尝试）
 默认从以下 8 种表达方式中选择，避免每次随意命名导致不可比：
@@ -131,7 +131,7 @@ Writer 根据策略、历史实验与 Scout 产出的简报，生成固定结构
 2. **生成**：根据上述输入生成 script.md 内容，确保 Body 3 points 均引用 evidence（signal_id + source），Sources 带 URL。
 3. **写入**：将 script 内容写入 `runs/<run_id>/script.md`。
 4. **追加**：向 `policy/experiments.jsonl` 追加 1–3 行 JSONL。若本轮暂无人工回填，先写旧格式结论；有人工回填时优先写推荐字段（含 content_category / expression_variant / metrics）。
-5. **回填到 Notion（推荐）**：调用 OpenClaw 的 Notion 能力，将本轮脚本基础信息写入「文本升级观测」数据库，供人工填写播放效果。
+5. **回填到 Notion（推荐）**：执行 `调用 notion [command]`，将本轮脚本基础信息写入「文本升级观测」数据库，供人工填写播放效果。
 6. **结束**：Writer 子任务完成，控制权回到 daily 工作流 Step 4（写回 state）。
 
 ---
