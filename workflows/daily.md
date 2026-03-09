@@ -77,6 +77,7 @@
 - `policy/notifications.json`（若存在）
 - `agents/scout.md`
 - `agents/writer.md`
+- Notion「openclaw -> 文本升级与观测 -> 文本升级观测」数据库（若运行器已配置 Notion 能力）
 
 ---
 
@@ -102,7 +103,8 @@
 
 1. 读取 `policy/policy.md`
 2. 若 `policy/experiments.jsonl` 存在，则读取最近若干条经验记录
-3. 若 `policy/notifications.json` 存在，则读取：
+3. 若运行器已配置 Notion 能力，则读取「文本升级观测」中最近已有人工填写播放/点赞/粉丝量的记录
+4. 若 `policy/notifications.json` 存在，则读取：
    - 是否启用通知
    - 收件人列表
    - 主题模板
@@ -150,8 +152,10 @@
 1. 读取 `brief.md`
 2. 结合 `policy/policy.md`
 3. 参考 `policy/experiments.jsonl` 的最近经验
-4. 生成 `script.md`
-5. 向 `policy/experiments.jsonl` 追加本轮经验记录
+4. 若可用，参考 Notion「文本升级观测」中的人工效果数据
+5. 生成 `script.md`
+6. 向 `policy/experiments.jsonl` 追加本轮经验记录
+7. 若可用，向 Notion「文本升级观测」写入本轮脚本基础信息（播放/点赞/粉丝量由人工后填）
 
 若 `brief.md` 缺失：
 
