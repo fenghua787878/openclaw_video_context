@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Signals",
+  "description": "信号列表，每条为一次发现",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["id", "title", "url", "source", "reason", "score"],
+    "properties": {
+      "id": { "type": "string", "description": "唯一标识" },
+      "title": { "type": "string" },
+      "url": { "type": "string", "format": "uri" },
+      "source": { "type": "string", "description": "来源名称或域名" },
+      "published_at": { "type": "string", "description": "发布日期，未知填 unknown" },
+      "reason": { "type": "string", "description": "入选理由" },
+      "score": { "type": "number", "minimum": 0, "maximum": 10 }
+    }
+  }
+}

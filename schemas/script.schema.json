@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Script",
+  "description": "脚本结构（短标题/视频描述/Hook/Body/Implication/CTA/Captions）",
+  "type": "object",
+  "required": ["short_title", "video_description", "hook", "body_points", "implication", "cta"],
+  "properties": {
+    "short_title": { "type": "string" },
+    "video_description": { "type": "string" },
+    "hook": { "type": "string" },
+    "body_points": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "properties": {
+          "point": { "type": "string" },
+          "signal_id": { "type": "string" },
+          "source": { "type": "string" }
+        }
+      }
+    },
+    "implication": { "type": "string" },
+    "cta": { "type": "string" },
+    "captions": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Item",
+  "description": "items.jsonl 单条对象",
+  "type": "object",
+  "required": ["signal_id", "url", "reliability"],
+  "properties": {
+    "signal_id": { "type": "string" },
+    "url": { "type": "string", "format": "uri" },
+    "title": { "type": "string" },
+    "content": { "type": "string", "description": "正文或 snippet" },
+    "reliability": { "enum": ["high", "medium", "low"] },
+    "notes": { "type": "string", "description": "如 fetch_failed 表示抓取失败用 snippet" },
+    "fetched_at": { "type": "string", "format": "date-time" }
+  }
+}

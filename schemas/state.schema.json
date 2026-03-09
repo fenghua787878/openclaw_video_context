@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RunState",
+  "description": "单次运行的状态与降级记录",
+  "type": "object",
+  "required": ["run_id", "started_at", "steps", "degradation"],
+  "properties": {
+    "run_id": { "type": "string", "description": "本次运行唯一 ID" },
+    "started_at": { "type": "string", "format": "date-time" },
+    "finished_at": { "type": ["string", "null"], "format": "date-time" },
+    "steps": {
+      "type": "object",
+      "description": "各步骤完成状态",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "status": { "enum": ["pending", "running", "done", "failed", "skipped"] },
+          "started_at": { "type": ["string", "null"] },
+          "finished_at": { "type": ["string", "null"] },
+          "note": { "type": "string" }
+        }
+      }
+    },
+    "degradation": {
+      "type": "array",
+      "description": "降级项列表",
+      "items": {
+        "type": "object",
+        "properties": {
+          "step": { "type": "string" },
+          "reason": { "type": "string" },
+          "fallback": { "type": "string" }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "signals_count": { "type": "integer" },
+        "items_count": { "type": "integer" },
+        "experiments_appended": { "type": "integer" }
+      }
+    }
+  }
+}

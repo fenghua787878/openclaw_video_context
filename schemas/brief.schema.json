@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Brief",
+  "description": "策展简报结构（用于校验关键字段存在）",
+  "type": "object",
+  "required": ["theme", "top_angles", "evidence", "sources"],
+  "properties": {
+    "theme": { "type": "string" },
+    "top_angles": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "point": { "type": "string" },
+          "signal_id": { "type": "string" },
+          "source": { "type": "string" }
+        }
+      }
+    },
+    "risks": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "url": { "type": "string" }
+        }
+      }
+    }
+  }
+}
