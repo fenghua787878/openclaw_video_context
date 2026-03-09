@@ -242,7 +242,7 @@ openclaw run workflows/daily.md
 
 - **短期**：优先跑通 Markdown workflow + 原生工具 / 过渡脚本。
 - **中期**：将 `tools/exec` 的关键能力迁移为插件或统一工具接口。
-- **长期**：支持多 provider、多模板、多输出渠道，并持续用 `experiments.jsonl` 驱动改进。
+- **长期**：支持多 provider、多模板、多输出渠道，并持续用 `experiments.jsonl` 驱动改进（以人工回填的播放量/点赞量/加粉量为主要升级依据，按 content_category 与 expression_variant 两维度评估）。
 
 ## 约束与原则
 
