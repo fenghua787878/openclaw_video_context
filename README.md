@@ -92,6 +92,7 @@ content_loop/
 - 以 Scout / Writer 作为核心子任务拆分。
 - 以 `runs/<run_id>/` 保存全量产物。
 - 以 `policy/experiments.jsonl` 记录每次运行的复盘经验。
+- 若已配置 Notion 能力，同步把脚本写入「文本升级观测」数据库，人工回填播放/点赞/粉丝效果。
 - 以 schema 约束 JSON 产物格式。
 
 ### 依赖实际环境确认的部分

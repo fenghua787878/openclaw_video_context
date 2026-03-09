@@ -8,10 +8,12 @@ Writer 根据策略、历史实验与 Scout 产出的简报，生成固定结构
 - **policy/experiments.jsonl**：仅读取**最后 30 行**，作为「最近做了什么、效果如何」的上下文
 - **runs/<run_id>/brief.md**：策展简报（Theme / Top angles / Evidence / Risks / Sources）
 - **runs/<run_id>/items.jsonl**（可选）：深挖条目，用于丰富脚本中的证据引用
+- **Notion：openclaw 页面 -> 文本升级与观测 -> 文本升级观测（推荐）**：使用 `调用 notion [command]` 读取最近人工回填记录，作为本轮表达方式选择依据
 
 ## 输出
 1. **runs/<run_id>/script.md**：成稿脚本（中文），结构见下。
 2. **policy/experiments.jsonl**：追加 1–3 行 JSONL，字段与示例见下。
+3. **Notion 数据库新增行（推荐）**：将本轮每篇脚本写入「文本ID、文本正文、播放量、点赞量、粉丝量、内容方向、表达方式」字段，播放相关数值由人工后续补填。
 
 ---
 
@@ -91,6 +93,32 @@ Writer 根据策略、历史实验与 Scout 产出的简报，生成固定结构
 {"ts":"2025-03-05T20:00:00Z","run_id":"daily_20250305_180000","script_id":"script_1","content_category":"政策解读","expression_variant":"问答式","metrics":{"plays":12800,"likes":640,"follows":96},"effective_by":"content_category + expression_variant","what_worked":"问答式开场提升完播","what_to_try_next":"同主题增加数据图表口播版本","note":"manual_feedback=sheet_20250305"}
 ```
 
+### Notion 回填闭环（推荐）
+- 写入时机：`script.md` 生成后，按脚本逐条写入 Notion 数据库「文本升级观测」（调用格式：`调用 notion [command]`）。
+- 字段映射：
+  - `文本ID` <- `run_id + script_id`
+  - `文本正文` <- 脚本正文（建议含短标题与 Hook）
+  - `内容方向` <- `content_category`
+  - `表达方式` <- `expression_variant`
+  - `播放量/点赞量/粉丝量` <- 先置空或 0，由人工发布后填写
+- 读取时机：下次 Writer 开始前，优先通过 Notion 工具读取最近人工已填数值的记录（调用格式：`调用 notion [command]`），用于比较不同内容方向与表达方式的效果。
+
+### 表达方式候选池（用于 A/B 尝试）
+默认从以下 8 种表达方式中选择，避免每次随意命名导致不可比：
+1. **问答式**：先抛常见问题，再逐段回答。
+2. **结论前置**：第一句先给判断，再给依据。
+3. **故事化**：用一个真实场景引入，再抽象出规则。
+4. **数据驱动**：用数字、比例、趋势组织论证。
+5. **清单式**：按 3–5 条 checklist 展开。
+6. **对比式**：合规与违规、国内与境外、旧规与新规对照。
+7. **步骤式**：按执行顺序给操作路径（第 1 步/第 2 步）。
+8. **风险揭示式**：先讲代价与后果，再给规避建议。
+
+选择规则：
+- 同一 `content_category` 下，连续至少测试 2–3 种 `expression_variant` 才做优劣判断。
+- 单次判断优先看 `粉丝量`，再看 `点赞量`，最后看 `播放量`。
+- 若样本量不足（例如每种表达 <3 条），只记录观察，不升级默认策略。
+
 ### 写入方式
 - **原子写入**：先写入临时文件（如 `policy/experiments.jsonl.tmp`），再重命名替换原文件，避免截断。
 - 由 OpenClaw 的 file write 或 exec 调用封装了原子写的脚本（如 src/io_utils 中的 append_jsonl）完成。
@@ -103,7 +131,8 @@ Writer 根据策略、历史实验与 Scout 产出的简报，生成固定结构
 2. **生成**：根据上述输入生成 script.md 内容，确保 Body 3 points 均引用 evidence（signal_id + source），Sources 带 URL。
 3. **写入**：将 script 内容写入 `runs/<run_id>/script.md`。
 4. **追加**：向 `policy/experiments.jsonl` 追加 1–3 行 JSONL。若本轮暂无人工回填，先写旧格式结论；有人工回填时优先写推荐字段（含 content_category / expression_variant / metrics）。
-5. **结束**：Writer 子任务完成，控制权回到 daily 工作流 Step 4（写回 state）。
+5. **回填到 Notion（推荐）**：执行 `调用 notion [command]`，将本轮脚本基础信息写入「文本升级观测」数据库，供人工填写播放效果。
+6. **结束**：Writer 子任务完成，控制权回到 daily 工作流 Step 4（写回 state）。
 
 ---
 

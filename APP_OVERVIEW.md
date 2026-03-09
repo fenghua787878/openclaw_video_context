@@ -80,7 +80,7 @@
 其中：
 
 - **Scout** 负责：信号发现、初步采集、策展简报；
-- **Writer** 负责：读取 brief 与 policy、生成 script、追加 experiments。
+- **Writer** 负责：读取 brief 与 policy、生成 script、追加 experiments；若可用则读写 Notion「文本升级观测」库。
 
 ## 4. 数据契约与产物说明
 

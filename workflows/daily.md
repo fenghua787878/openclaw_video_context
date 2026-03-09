@@ -31,10 +31,12 @@
 ### Capability Policy
 当前 run 只允许使用以下已批准工具：
 
-1. **`v_to_b_search`**：搜索 tool  
-   示例调用：`query='OpenAI API docs'`，`count=5`，`freshness='pw'`
-2. **`email_send`**：邮件发送 tool  
-   示例调用：`to='xxx@example.com'`，`subject='测试邮件'`，`content='这是一封测试邮件'`
+1. **`v_to_B` / `v_to_b_search`**：搜索 tool（Brave Search API，经 v2ray）  
+   示例调用：`调用 v_to_B [query]`（或等价的结构化参数 `query/count/freshness`）
+2. **`notion`**：Notion 数据库读写 tool  
+   示例调用：`调用 notion [command]`
+3. **`email_send`**：邮件发送 tool  
+   示例调用：`调用 email_send [recipient] [subject] [content]`
 
 规则：
 
@@ -77,6 +79,7 @@
 - `policy/notifications.json`（若存在）
 - `agents/scout.md`
 - `agents/writer.md`
+- Notion「openclaw -> 文本升级与观测 -> 文本升级观测」数据库（若运行器已配置 Notion 能力）
 
 ---
 
@@ -102,7 +105,8 @@
 
 1. 读取 `policy/policy.md`
 2. 若 `policy/experiments.jsonl` 存在，则读取最近若干条经验记录
-3. 若 `policy/notifications.json` 存在，则读取：
+3. 通过 Notion 工具读取「文本升级观测」中最近已有人工填写播放/点赞/粉丝量的记录（调用形式：`调用 notion [command]`）
+4. 若 `policy/notifications.json` 存在，则读取：
    - 是否启用通知
    - 收件人列表
    - 主题模板
@@ -150,8 +154,10 @@
 1. 读取 `brief.md`
 2. 结合 `policy/policy.md`
 3. 参考 `policy/experiments.jsonl` 的最近经验
-4. 生成 `script.md`
-5. 向 `policy/experiments.jsonl` 追加本轮经验记录
+4. 若可用，参考 Notion「文本升级观测」中的人工效果数据
+5. 生成 `script.md`
+6. 向 `policy/experiments.jsonl` 追加本轮经验记录
+7. 通过 Notion 工具向「文本升级观测」写入本轮脚本基础信息（调用形式：`调用 notion [command]`；播放/点赞/粉丝量由人工后填）
 
 若 `brief.md` 缺失：
 
