@@ -92,6 +92,7 @@ content_loop/
 - 以 Scout / Writer 作为核心子任务拆分。
 - 以 `runs/<run_id>/` 保存全量产物。
 - 以 `policy/experiments.jsonl` 记录每次运行的复盘经验。
+- 若已配置 Notion 能力，同步把脚本写入「文本升级观测」数据库，人工回填播放/点赞/粉丝效果。
 - 以 schema 约束 JSON 产物格式。
 
 ### 依赖实际环境确认的部分
@@ -172,6 +173,7 @@ openclaw run workflows/daily.md
 - `runs/<run_id>/items.jsonl`：深挖结果；
 - `runs/<run_id>/brief.md`：策展简报；
 - `runs/<run_id>/script.md`：成稿脚本；
+- `runs/<run_id>/notification.md`：通知正文（邮件正文默认应包含 script.md 全文，可直接发送）；
 - `policy/experiments.jsonl`：经验记录追加情况。
 
 > `policy/notifications.json` 目前应视为**预留配置项**，除非你已经接入实际通知链路，否则不应默认理解为“配置后即可自动发送”。
@@ -242,7 +244,7 @@ openclaw run workflows/daily.md
 
 - **短期**：优先跑通 Markdown workflow + 原生工具 / 过渡脚本。
 - **中期**：将 `tools/exec` 的关键能力迁移为插件或统一工具接口。
-- **长期**：支持多 provider、多模板、多输出渠道，并持续用 `experiments.jsonl` 驱动改进。
+- **长期**：支持多 provider、多模板、多输出渠道，并持续用 `experiments.jsonl` 驱动改进（以人工回填的播放量/点赞量/加粉量为主要升级依据，按 content_category 与 expression_variant 两维度评估）。
 
 ## 约束与原则
 

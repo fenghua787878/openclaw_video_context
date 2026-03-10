@@ -52,6 +52,20 @@ def validate_item(item: dict[str, Any]) -> list[str]:
 
 
 def validate_experiment_row(row: dict[str, Any]) -> list[str]:
-    """校验 experiments 单行。"""
-    required = ["ts", "what_worked", "what_to_try_next"]
-    return _validate_required(row, required, "experiment")
+    """校验 experiments 单行。兼容旧格式，并支持人工反馈指标字段。"""
+    errors = _validate_required(row, ["ts"], "experiment")
+
+    has_legacy_summary = all(k in row for k in ("what_worked", "what_to_try_next"))
+    has_manual_metrics = (
+        isinstance(row.get("metrics"), dict)
+        and all(k in row.get("metrics", {}) for k in ("plays", "likes", "follows"))
+        and "content_category" in row
+        and "expression_variant" in row
+    )
+
+    if not (has_legacy_summary or has_manual_metrics):
+        errors.append(
+            "experiment: must contain either legacy keys (what_worked + what_to_try_next) "
+            "or manual feedback keys (content_category + expression_variant + metrics.plays/likes/follows)"
+        )
+    return errors
