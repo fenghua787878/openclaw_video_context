@@ -173,6 +173,7 @@ openclaw run workflows/daily.md
 - `runs/<run_id>/items.jsonl`：深挖结果；
 - `runs/<run_id>/brief.md`：策展简报；
 - `runs/<run_id>/script.md`：成稿脚本；
+- `runs/<run_id>/notification.md`：通知正文（邮件正文默认应包含 script.md 全文，可直接发送）；
 - `policy/experiments.jsonl`：经验记录追加情况。
 
 > `policy/notifications.json` 目前应视为**预留配置项**，除非你已经接入实际通知链路，否则不应默认理解为“配置后即可自动发送”。

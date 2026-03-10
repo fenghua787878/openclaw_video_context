@@ -107,8 +107,8 @@
 2. 若 `policy/experiments.jsonl` 存在，则读取最近若干条经验记录
 3. 通过 Notion 工具读取「文本升级观测」中最近已有人工填写播放/点赞/粉丝量的记录（调用形式：`调用 notion [command]`）
 4. 若 `policy/notifications.json` 存在，则读取：
-   - 是否启用通知
-   - 收件人列表
+   - `enabled`（可选，缺省视为 `true`）
+   - 收件人列表（必填，至少 1 个）
    - 主题模板
    - 是否仅在 success / degraded_success 时发送
 
@@ -116,6 +116,12 @@
 
 - 视为本轮通知默认关闭
 - 不得因此判定本轮失败
+
+若 `policy/notifications.json` 存在但配置不完整（例如无收件人）：
+
+- 将通知步骤记为 `skipped`
+- 在 `state.degradation` 中记录 `notifications_config_invalid`
+- 不得因此影响主流程产物
 
 ### Step 2 — 执行 Scout
 
@@ -168,19 +174,22 @@
 
 仅当以下条件同时满足时进入本步：
 
-1. `policy/notifications.json` 存在且 `enabled=true`
-2. 本轮已有可发送内容，例如 `script.md` 或摘要
-3. 本轮状态满足通知策略要求
+1. `policy/notifications.json` 存在，且未显式关闭通知（`enabled` 缺省按 `true` 处理）
+2. 配置中存在有效收件人（至少 1 个）
+3. 本轮已有可发送内容，且优先使用 `script.md` 全文作为邮件正文
+4. 本轮状态满足通知策略要求
 
 本步要求：
 
 1. 生成 `runs/<run_id>/notification.md`
-2. 形成邮件内容，至少包含：
-   - 本轮主题或标题
-   - 结果概述
-   - 关键信号或结论
-   - 是否成功 / 是否降级
-   - 可选的成稿摘要
+2. 形成邮件内容，默认结构如下（要求可直接发送）：
+   - 开头：本轮主题/标题 + 结果状态（success/degraded 等）
+   - 正文：`runs/<run_id>/script.md` 的完整全文（不是摘要）
+   - 结尾：必要的补充说明（如降级原因、来源说明）
+3. 若邮件服务对正文长度有限制：
+   - 优先保留全文并按「上/下」两封拆分发送；
+   - 或保留全文并改为纯文本格式发送；
+   - 不得在未说明的情况下自动截断为摘要。
 
 若通知条件不满足：
 
@@ -188,7 +197,7 @@
 
 ### Step 5 — 调用 email_send（可选）
 
-仅当 Step 4 已生成 `notification.md` 且通知策略允许发送时，才调用 **`email_send`**。
+仅当 Step 4 已生成 `notification.md`，且通知未被显式关闭（`enabled=false`）并存在有效收件人时，才调用 **`email_send`**。
 
 调用时显式提供：
 
@@ -200,7 +209,7 @@
 
 - `to`：来自 `policy/notifications.json` 的收件人
 - `subject`：本轮通知主题
-- `content`：`notification.md` 的正文内容
+- `content`：`notification.md` 全文内容（其中应包含 `script.md` 全文）
 
 #### Email fallback
 
