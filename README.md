@@ -220,6 +220,7 @@ openclaw run workflows/daily.md
 - **fetch_sources.py**：输入关键词，输出 signals.json 或 stdout；可用于 mock、占位或最小搜索链路。
 - **fetch_sources_searxng.py**：通过本地 SearXNG 实例执行搜索。
 - **fetch_content.py**：对 URL 列表抓取正文并输出 items.jsonl。
+- **sync_script_to_notion.py**：把 `runs/<run_id>/script.md` 拆分成逐条 Notion 写入命令，写入 `runs/<run_id>/notion_sync_commands.txt`。
 - **maintain_proxy.sh**：检查代理连通性，供外网访问依赖场景使用。
 
 > 若你的 OpenClaw 运行环境已经提供成熟的原生搜索/抓取工具，则优先使用原生能力。本文中的 `web_search` / `web_fetch` 只是**示意名称**，不代表所有环境都使用这两个固定名字。
