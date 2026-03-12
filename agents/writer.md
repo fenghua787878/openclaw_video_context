@@ -94,7 +94,7 @@ Writer 根据策略、历史实验与 Scout 产出的简报，生成固定结构
 ```
 
 ### Notion 回填闭环（推荐）
-- 写入时机：`script.md` 生成后，先运行 `tools/exec/sync_script_to_notion.py` 产生命令，再按脚本逐条写入 Notion 数据库「文本升级观测」（调用格式：`调用 notion [command]`）。
+- 写入时机：`script.md` 生成后，按脚本逐条写入 Notion 数据库「文本升级观测」（调用格式：`调用 notion [command]`）。
 - 字段映射：
   - `文本ID` <- `run_id + script_id`
   - `文本正文` <- 脚本正文（建议含短标题与 Hook）
@@ -131,9 +131,8 @@ Writer 根据策略、历史实验与 Scout 产出的简报，生成固定结构
 2. **生成**：根据上述输入生成 script.md 内容，确保 Body 3 points 均引用 evidence（signal_id + source），Sources 带 URL。
 3. **写入**：将 script 内容写入 `runs/<run_id>/script.md`。
 4. **追加**：向 `policy/experiments.jsonl` 追加 1–3 行 JSONL。若本轮暂无人工回填，先写旧格式结论；有人工回填时优先写推荐字段（含 content_category / expression_variant / metrics）。
-5. **生成 Notion 写入命令**：执行 `python tools/exec/sync_script_to_notion.py --run-id <run_id> --content-category <内容方向> --expression-variant <表达方式>`，输出 `runs/<run_id>/notion_sync_commands.txt`。
-6. **回填到 Notion（推荐）**：逐条执行 `notion_sync_commands.txt` 中的 `调用 notion [command]`，将本轮脚本基础信息写入「文本升级观测」数据库，供人工填写播放效果。
-7. **结束**：Writer 子任务完成，控制权回到 daily 工作流 Step 4（写回 state）。
+5. **回填到 Notion（推荐）**：执行 `调用 notion [command]`，将本轮脚本基础信息写入「文本升级观测」数据库，供人工填写播放效果。
+6. **结束**：Writer 子任务完成，控制权回到 daily 工作流 Step 4（写回 state）。
 
 ---
 
