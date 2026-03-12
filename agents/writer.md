@@ -1,17 +1,19 @@
 # Writer 子任务：脚本生成 + 自升级记录
 
 ## 角色与目标
-Writer 根据策略、历史实验与 Scout 产出的简报，生成固定结构的 **script.md**（可包含 1–N 篇脚本），并向 **policy/experiments.jsonl** 追加 1–3 行 JSONL，完成当次运行的自升级记录。
+Writer 根据策略、历史实验与 Scout 产出的简报，生成固定结构的 **script.md**（可包含 1–N 篇脚本），并向 **policy/experiments.jsonl** 追加 1–3 行 JSONL，完成当次运行的记录沉淀。文本升级决策应以人工回填的视频效果数据为准，不再仅凭主观总结。
 
 ## 输入
 - **policy/policy.md**：主题、风格、禁区、输出形态
 - **policy/experiments.jsonl**：仅读取**最后 30 行**，作为「最近做了什么、效果如何」的上下文
 - **runs/<run_id>/brief.md**：策展简报（Theme / Top angles / Evidence / Risks / Sources）
 - **runs/<run_id>/items.jsonl**（可选）：深挖条目，用于丰富脚本中的证据引用
+- **Notion：openclaw 页面 -> 文本升级与观测 -> 文本升级观测（推荐）**：使用 `调用 notion [command]` 读取最近人工回填记录，作为本轮表达方式选择依据
 
 ## 输出
 1. **runs/<run_id>/script.md**：成稿脚本（中文），结构见下。
 2. **policy/experiments.jsonl**：追加 1–3 行 JSONL，字段与示例见下。
+3. **Notion 数据库新增行（推荐）**：将本轮每篇脚本写入「文本ID、文本正文、播放量、点赞量、粉丝量、内容方向、表达方式」字段，播放相关数值由人工后续补填。
 
 ---
 
@@ -62,22 +64,60 @@ Writer 根据策略、历史实验与 Scout 产出的简报，生成固定结构
 
 ---
 
-## experiments.jsonl 追加规范
+## experiments.jsonl 追加规范（人工评估优先）
 
 每次运行向 **policy/experiments.jsonl** 追加 **1–3 行** JSONL。每行一个 JSON 对象。
 
-### 严格字段
+### 严格字段（兼容旧格式）
 - **ts**（必填）：ISO8601 时间戳，如 `2025-03-04T12:00:00Z`
-- **what_worked**（必填）：本轮运行中效果好的做法或结论（字符串）
-- **what_to_try_next**（必填）：下次可尝试的改进（字符串）
+- **what_worked**（旧格式必填）：本轮运行中效果好的做法或结论（字符串）
+- **what_to_try_next**（旧格式必填）：下次可尝试的改进（字符串）
 - **note**（可选）：备注，如 run_id、降级说明、失败原因等
 
-### 示例（三行）
+### 推荐字段（用于文本升级判断）
+- **run_id**：本次脚本所属 run_id。
+- **script_id**：脚本编号（如 `script_1`），保证“一条文本 -> 一条视频”可追溯。
+- **content_category**：文本内容种类（如 `政策解读` / `案例拆解` / `观点评论`）。
+- **expression_variant**：同一内容下的表达方式（如 `数据驱动` / `故事化` / `问答式`）。
+- **metrics**：人工回填的视频结果，包含：
+  - `plays`：播放量
+  - `likes`：点赞量
+  - `follows`：加粉量
+- **effective_by**：有效性评估维度说明，固定为 `content_category + expression_variant`。
+
+> 升级原则：仅当人工回填数据可在上述两个维度上形成稳定对比结论时，才更新“下次文本策略”。
+
+### 示例（一行旧格式 + 一行推荐格式）
 ```jsonl
 {"ts":"2025-03-04T12:00:00Z","what_worked":"用 5 个 query 覆盖中英文，得到 12 条信号","what_to_try_next":"增加「开源发布」类 query","note":"run_id=daily_20250304_120000"}
-{"ts":"2025-03-04T12:00:00Z","what_worked":"4 条深挖均为 high reliability","what_to_try_next":"保持当前 deep_dive_target=4","note":""}
-{"ts":"2025-03-04T12:00:00Z","what_worked":"brief 与 script 结构完整，证据可追溯","what_to_try_next":"尝试更短 Hook 以提升点击","note":""}
+{"ts":"2025-03-05T20:00:00Z","run_id":"daily_20250305_180000","script_id":"script_1","content_category":"政策解读","expression_variant":"问答式","metrics":{"plays":12800,"likes":640,"follows":96},"effective_by":"content_category + expression_variant","what_worked":"问答式开场提升完播","what_to_try_next":"同主题增加数据图表口播版本","note":"manual_feedback=sheet_20250305"}
 ```
+
+### Notion 回填闭环（推荐）
+- 写入时机：`script.md` 生成后，先运行 `tools/exec/sync_script_to_notion.py` 产生命令，再按脚本逐条写入 Notion 数据库「文本升级观测」（调用格式：`调用 notion [command]`）。
+- 字段映射：
+  - `文本ID` <- `run_id + script_id`
+  - `文本正文` <- 脚本正文（建议含短标题与 Hook）
+  - `内容方向` <- `content_category`
+  - `表达方式` <- `expression_variant`
+  - `播放量/点赞量/粉丝量` <- 先置空或 0，由人工发布后填写
+- 读取时机：下次 Writer 开始前，优先通过 Notion 工具读取最近人工已填数值的记录（调用格式：`调用 notion [command]`），用于比较不同内容方向与表达方式的效果。
+
+### 表达方式候选池（用于 A/B 尝试）
+默认从以下 8 种表达方式中选择，避免每次随意命名导致不可比：
+1. **问答式**：先抛常见问题，再逐段回答。
+2. **结论前置**：第一句先给判断，再给依据。
+3. **故事化**：用一个真实场景引入，再抽象出规则。
+4. **数据驱动**：用数字、比例、趋势组织论证。
+5. **清单式**：按 3–5 条 checklist 展开。
+6. **对比式**：合规与违规、国内与境外、旧规与新规对照。
+7. **步骤式**：按执行顺序给操作路径（第 1 步/第 2 步）。
+8. **风险揭示式**：先讲代价与后果，再给规避建议。
+
+选择规则：
+- 同一 `content_category` 下，连续至少测试 2–3 种 `expression_variant` 才做优劣判断。
+- 单次判断优先看 `粉丝量`，再看 `点赞量`，最后看 `播放量`。
+- 若样本量不足（例如每种表达 <3 条），只记录观察，不升级默认策略。
 
 ### 写入方式
 - **原子写入**：先写入临时文件（如 `policy/experiments.jsonl.tmp`），再重命名替换原文件，避免截断。
@@ -90,8 +130,10 @@ Writer 根据策略、历史实验与 Scout 产出的简报，生成固定结构
 1. **读取**：policy/policy.md、policy/experiments.jsonl（最后 30 行）、runs/<run_id>/brief.md，可选 runs/<run_id>/items.jsonl。
 2. **生成**：根据上述输入生成 script.md 内容，确保 Body 3 points 均引用 evidence（signal_id + source），Sources 带 URL。
 3. **写入**：将 script 内容写入 `runs/<run_id>/script.md`。
-4. **追加**：向 `policy/experiments.jsonl` 追加 1–3 行 JSONL，包含 ts、what_worked、what_to_try_next、note（可选）。
-5. **结束**：Writer 子任务完成，控制权回到 daily 工作流 Step 4（写回 state）。
+4. **追加**：向 `policy/experiments.jsonl` 追加 1–3 行 JSONL。若本轮暂无人工回填，先写旧格式结论；有人工回填时优先写推荐字段（含 content_category / expression_variant / metrics）。
+5. **生成 Notion 写入命令**：执行 `python tools/exec/sync_script_to_notion.py --run-id <run_id> --content-category <内容方向> --expression-variant <表达方式>`，输出 `runs/<run_id>/notion_sync_commands.txt`。
+6. **回填到 Notion（推荐）**：逐条执行 `notion_sync_commands.txt` 中的 `调用 notion [command]`，将本轮脚本基础信息写入「文本升级观测」数据库，供人工填写播放效果。
+7. **结束**：Writer 子任务完成，控制权回到 daily 工作流 Step 4（写回 state）。
 
 ---
 
