@@ -29,3 +29,8 @@
 - 写入本轮脚本记录：`调用 notion create_page 文本升级观测 {文本ID, 文本正文, 内容方向, 表达方式}`
 
 > 具体 command 参数以运行器中 notion 工具的实际实现为准；本文件只约束字段与流程。
+
+## 自动化写入建议
+- 推荐先运行：`python tools/exec/sync_script_to_notion.py --run-id <run_id> --content-category <内容方向> --expression-variant <表达方式>`
+- 该脚本会把 Notion 命令写入：`runs/<run_id>/notion_sync_commands.txt`
+- 再逐条执行其中的 `调用 notion [command]`，确保每个脚本都写入数据库。

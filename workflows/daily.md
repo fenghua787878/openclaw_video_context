@@ -161,9 +161,11 @@
 2. 结合 `policy/policy.md`
 3. 参考 `policy/experiments.jsonl` 的最近经验
 4. 若可用，参考 Notion「文本升级观测」中的人工效果数据
-5. 生成 `script.md`
-6. 向 `policy/experiments.jsonl` 追加本轮经验记录
-7. 通过 Notion 工具向「文本升级观测」写入本轮脚本基础信息（调用形式：`调用 notion [command]`；播放/点赞/粉丝量由人工后填）
+5. 生成 `script.md`（Body 小标题必须自定义，不得固定为“要点一/二/三”）
+6. 对照最近历史脚本与 Notion 记录做新鲜度去重：相似稿件重写或删除，仅保留新增事实充分的版本
+7. 向 `policy/experiments.jsonl` 追加本轮经验记录
+8. 先执行 `python tools/exec/sync_script_to_notion.py --run-id <run_id> --content-category <内容方向> --expression-variant <表达方式>` 生成逐条写入命令（落盘到 `runs/<run_id>/notion_sync_commands.txt`）
+9. 再逐条执行上述命令（调用形式：`调用 notion [command]`），把本轮脚本写入「文本升级观测」
 
 若 `brief.md` 缺失：
 
