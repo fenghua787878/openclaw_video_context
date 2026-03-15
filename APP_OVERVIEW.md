@@ -80,7 +80,7 @@
 其中：
 
 - **Scout** 负责：信号发现、初步采集、策展简报；
-- **Writer** 负责：读取 brief 与 policy、生成 script、追加 experiments。
+- **Writer** 负责：读取 brief 与 policy，使用 `qwen3-max-2026-01-23` 与 `Claude Sonnet 4.5` 双模型生成 script、追加 experiments；若可用则读写 Notion「文本升级观测」库。
 
 ## 4. 数据契约与产物说明
 
@@ -91,7 +91,8 @@
 | items | `runs/<run_id>/items.jsonl` | 深挖结果，每行 JSON：`signal_id/url/content/reliability/notes` |
 | brief | `runs/<run_id>/brief.md` | 策展简报：Theme / Top angles / Evidence / Risks / Sources |
 | script | `runs/<run_id>/script.md` | 成稿脚本：标题 / Hook / Body / Implication / CTA / Captions |
-| experiments | `policy/experiments.jsonl` | 每次追加 1–3 行：`ts / what_worked / what_to_try_next / note` |
+| notification | `runs/<run_id>/notification.md` | 通知正文：默认包含 `script.md` 全文，确保邮件可直接使用 |
+| experiments | `policy/experiments.jsonl` | 每次追加 1–3 行：优先记录人工回填指标（播放/点赞/加粉）与两个评估维度（content_category / expression_variant），兼容旧字段 `ts / what_worked / what_to_try_next / note` |
 
 约束如下：
 
@@ -99,6 +100,7 @@
 - 时间未知统一写 `unknown`；
 - JSON 产物应符合 `schemas/` 中对应 schema；
 - 即使部分步骤失败，也应尽量先写出 `state.json`。
+- Body 小标题应按主题自定义，避免固定“要点一/二/三”；重复度高的旧题材应重写或跳过。
 
 ## 5. 运行状态定义
 
@@ -138,7 +140,7 @@
 
 - 尽量保留 `state.json` 与已有中间产物；
 - 若没有 `brief.md`，Writer 可跳过 script 生成；
-- 仍建议追加至少 1 行 `experiments.jsonl`，说明失败点与后续尝试方向。
+- 仍建议追加至少 1 行 `experiments.jsonl`。若暂无人工数据，先记录失败点与后续尝试方向；有人工数据时优先记录播放/点赞/加粉。
 
 ### 6.4 Writer 失败
 

@@ -31,10 +31,12 @@
 ### Capability Policy
 当前 run 只允许使用以下已批准工具：
 
-1. **`v_to_b_search`**：搜索 tool  
-   示例调用：`query='OpenAI API docs'`，`count=5`，`freshness='pw'`
-2. **`email_send`**：邮件发送 tool  
-   示例调用：`to='xxx@example.com'`，`subject='测试邮件'`，`content='这是一封测试邮件'`
+1. **`v_to_B` / `v_to_b_search`**：搜索 tool（Brave Search API，经 v2ray）  
+   示例调用：`调用 v_to_B [query]`（或等价的结构化参数 `query/count/freshness`）
+2. **`notion`**：Notion 数据库读写 tool  
+   示例调用：`调用 notion [command]`
+3. **`email_send`**：邮件发送 tool  
+   示例调用：`调用 email_send [recipient] [subject] [content]`
 
 规则：
 
@@ -77,6 +79,7 @@
 - `policy/notifications.json`（若存在）
 - `agents/scout.md`
 - `agents/writer.md`
+- Notion「openclaw -> 文本升级与观测 -> 文本升级观测」数据库（若运行器已配置 Notion 能力）
 
 ---
 
@@ -102,9 +105,10 @@
 
 1. 读取 `policy/policy.md`
 2. 若 `policy/experiments.jsonl` 存在，则读取最近若干条经验记录
-3. 若 `policy/notifications.json` 存在，则读取：
-   - 是否启用通知
-   - 收件人列表
+3. 通过 Notion 工具读取「文本升级观测」中最近已有人工填写播放/点赞/粉丝量的记录（调用形式：`调用 notion [command]`）
+4. 若 `policy/notifications.json` 存在，则读取：
+   - `enabled`（可选，缺省视为 `true`）
+   - 收件人列表（必填，至少 1 个）
    - 主题模板
    - 是否仅在 success / degraded_success 时发送
 
@@ -112,6 +116,12 @@
 
 - 视为本轮通知默认关闭
 - 不得因此判定本轮失败
+
+若 `policy/notifications.json` 存在但配置不完整（例如无收件人）：
+
+- 将通知步骤记为 `skipped`
+- 在 `state.degradation` 中记录 `notifications_config_invalid`
+- 不得因此影响主流程产物
 
 ### Step 2 — 执行 Scout
 
@@ -150,8 +160,13 @@
 1. 读取 `brief.md`
 2. 结合 `policy/policy.md`
 3. 参考 `policy/experiments.jsonl` 的最近经验
-4. 生成 `script.md`
-5. 向 `policy/experiments.jsonl` 追加本轮经验记录
+4. 若可用，参考 Notion「文本升级观测」中的人工效果数据
+5. 分别调用 `qwen3-max-2026-01-23` 与 `Claude Sonnet 4.5` 各生成 1 份候选脚本
+6. 合并写入 `script.md`（候选 A/候选 B），且 Body 小标题必须自定义，不得固定为“要点一/二/三”
+7. 对照最近历史脚本与 Notion 记录做新鲜度去重：相似稿件重写或删除，仅保留新增事实充分的版本
+8. 向 `policy/experiments.jsonl` 追加本轮经验记录（记录两个模型各自表现与失败情况）
+9. 先执行 `python tools/exec/sync_script_to_notion.py --run-id <run_id> --content-category <内容方向> --expression-variant <表达方式>` 生成逐条写入命令（落盘到 `runs/<run_id>/notion_sync_commands.txt`）
+10. 再逐条执行上述命令（调用形式：`调用 notion [command]`），把本轮脚本写入「文本升级观测」
 
 若 `brief.md` 缺失：
 
@@ -162,19 +177,22 @@
 
 仅当以下条件同时满足时进入本步：
 
-1. `policy/notifications.json` 存在且 `enabled=true`
-2. 本轮已有可发送内容，例如 `script.md` 或摘要
-3. 本轮状态满足通知策略要求
+1. `policy/notifications.json` 存在，且未显式关闭通知（`enabled` 缺省按 `true` 处理）
+2. 配置中存在有效收件人（至少 1 个）
+3. 本轮已有可发送内容，且优先使用 `script.md` 全文作为邮件正文
+4. 本轮状态满足通知策略要求
 
 本步要求：
 
 1. 生成 `runs/<run_id>/notification.md`
-2. 形成邮件内容，至少包含：
-   - 本轮主题或标题
-   - 结果概述
-   - 关键信号或结论
-   - 是否成功 / 是否降级
-   - 可选的成稿摘要
+2. 形成邮件内容，默认结构如下（要求可直接发送）：
+   - 开头：本轮主题/标题 + 结果状态（success/degraded 等）
+   - 正文：`runs/<run_id>/script.md` 的完整全文（不是摘要）
+   - 结尾：必要的补充说明（如降级原因、来源说明）
+3. 若邮件服务对正文长度有限制：
+   - 优先保留全文并按「上/下」两封拆分发送；
+   - 或保留全文并改为纯文本格式发送；
+   - 不得在未说明的情况下自动截断为摘要。
 
 若通知条件不满足：
 
@@ -182,7 +200,7 @@
 
 ### Step 5 — 调用 email_send（可选）
 
-仅当 Step 4 已生成 `notification.md` 且通知策略允许发送时，才调用 **`email_send`**。
+仅当 Step 4 已生成 `notification.md`，且通知未被显式关闭（`enabled=false`）并存在有效收件人时，才调用 **`email_send`**。
 
 调用时显式提供：
 
@@ -194,7 +212,7 @@
 
 - `to`：来自 `policy/notifications.json` 的收件人
 - `subject`：本轮通知主题
-- `content`：`notification.md` 的正文内容
+- `content`：`notification.md` 全文内容（其中应包含 `script.md` 全文）
 
 #### Email fallback
 
