@@ -39,7 +39,7 @@
   - 每篇脚本约 800 字，结构为「短标题 / 视频描述 / Hook / Body / Implication / CTA / Captions」，直接用于短视频口播文稿与平台发布字段（短标题 + 视频描述），正文中不再插入 signal_id、URL 等引用。
 s
 - 所有证据需带 `signal_id` 或 `source` 引用；涉及法律与监管的表述必须可追溯到法规或官方来源，但这些溯源信息由 brief/items 与 signals 承担，不需要出现在交给 HeyGen 的口播文稿里。
-- 结尾 CTA 可自然带出：冯桦，在海南自由贸易港为数字企业提供合规法律服务，欢迎咨询。
+- 结尾 CTA 自然带出：我是冯桦，在海南自由贸易港为企业提供合规法律服务，欢迎咨询。
 
 ## 降级与容错
 - 无 Brave/API 时使用 OpenClaw 提供的 web_search / web_fetch。
