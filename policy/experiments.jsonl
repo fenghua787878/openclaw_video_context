@@ -1,16 +1,3 @@
-{"ts":"2025-01-01T00:00:00Z","what_worked":"初始示例：web_search 可用时能产出 10 条信号","what_to_try_next":"增加 query 多样性","note":"示例行，可删除"}
-{"ts":"2026-03-04T00:51:48Z","what_worked":"在无 web_search/web_fetch 环境下成功执行完整工作流，使用 mock 信号和降级策略","what_to_try_next":"配置 OpenClaw web_search 和 web_fetch 工具以获取真实信号","note":"run_id=daily_20260304_005148, degradation: no web_search/web_fetch available"}
-{"ts":"2026-03-04T00:51:48Z","what_worked":"mock 信号生成和降级处理逻辑正常工作","what_to_try_next":"优化 mock 数据质量，使其更贴近真实场景","note":"run_id=daily_20260304_005148"}
-{"ts":"2026-03-04T00:51:48Z","what_worked":"完整执行了 Scout 和 Writer 子任务，产物结构符合预期","what_to_try_next":"添加更多主题相关的 mock 查询模板","note":"run_id=daily_20260304_005148"}
-{"ts":"2026-03-04T01:05:30Z","what_worked":"成功集成 SearXNG 搜索功能，获得真实搜索结果","what_to_try_next":"优化查询关键词，提高相关性；实现 web_fetch 功能获取完整内容","note":"run_id=daily_20260304_010530, using fetch_sources_searxng.py"}
-{"ts":"2026-03-04T01:05:30Z","what_worked":"SearXNG 搜索返回了与 RWA 相关的高质量结果（央行八部门发文）","what_to_try_next":"针对数字资产合规主题细化搜索查询","note":"run_id=daily_20260304_010530"}
-{"ts":"2026-03-04T01:05:30Z","what_worked":"完整工作流使用真实搜索数据成功运行","what_to_try_next":"实现内容抓取功能以提高 reliability","note":"run_id=daily_20260304_010530"}
-{"ts":"2026-03-05T15:04:41Z","what_worked":"在降级模式下成功完成完整工作流，使用mock数据生成符合策略要求的script","what_to_try_next":"配置网络搜索工具以获取真实信号数据","note":"run_id=daily_20260305_150441, degradation: no web_search/web_fetch available"}
-{"ts":"2026-03-05T15:04:41Z","what_worked":"mock数据覆盖了RWA、DePIN、海南自贸港政策等核心主题","what_to_try_next":"优化mock数据的时效性和权威性","note":"run_id=daily_20260305_150441"}
-{"ts":"2026-03-05T15:04:41Z","what_worked":"script结构完整，包含短标题、视频描述、Hook、Body 3 points等所有必需元素","what_to_try_next":"增加HeyGen语气标注的丰富度","note":"run_id=daily_20260305_150441"}
-{"ts":"2026-03-05T15:17:49Z","what_worked":"成功在降级模式下完成完整工作流，使用mock数据生成符合策略要求的script","what_to_try_next":"配置网络搜索工具以获取真实信号数据","note":"run_id=daily_20260305_151749, degradation: no web_search/web_fetch available"}
-{"ts":"2026-03-05T15:17:49Z","what_worked":"mock数据准确反映了RWA、DePIN、海南自贸港政策等核心主题的最新监管动态","what_to_try_next":"增加更多具体案例和处罚案例的mock数据","note":"run_id=daily_20260305_151749"}
-{"ts":"2026-03-05T15:17:49Z","what_worked":"script内容专业、合规，明确强调了虚拟货币交易禁止的法律事实","what_to_try_next":"优化Body部分的字数，确保达到400字以上","note":"run_id=daily_20260305_151749"}
-{"ts":"2026-03-07T17:21:55Z","what_worked":"成功使用v_to_b_search获取真实RWA和DePIN相关信号，完成完整工作流","what_to_try_next":"解决web_fetch抓取问题以提高内容可靠性","note":"run_id=20260307_172155, degradation: web_fetch unavailable, using snippets with reliability=low"}
-{"ts":"2026-03-07T17:21:55Z","what_worked":"script内容符合800字要求，结构完整，明确强调虚拟货币交易禁令","what_to_try_next":"增加更多海南自贸港具体政策细节","note":"run_id=20260307_172155"}
-{"ts":"2026-03-07T17:21:55Z","what_worked":"成功整合多源信号，涵盖RWA监管、市场前景、DePIN应用和海南政策","what_to_try_next":"优化信号筛选算法，提高相关性","note":"run_id=20260307_172155"}
+{"ts": "2026-03-15T17:02:21.346422Z", "what_worked": "整合10条信号：覆盖RWA监管协同、数据要素政策、DeFi合规框架、市场规模数据；生成3篇去模板脚本，聚焦监管协同、数据要素入表、风险提示", "what_to_try_next": "提升信号一手来源比例，增加官方公告与法规原文；优化抓取能力，避免snippet降级；验证每篇脚本Body字数>400", "note": "run_id=daily_20260315_165924, script_1, content_category=监管解读, expression_variant=问答式"}
+{"ts": "2026-03-15T17:02:21.346422Z", "what_worked": "脚本2聚焦数据要素市场化与海南自贸港，结合政策加计扣除优惠，提供境内合规路径", "what_to_try_next": "增加具体案例（如海南企业数据资产入表实例），强化实操指导", "note": "run_id=daily_20260315_165924, script_2, content_category=政策解读, expression_variant=对比式"}
+{"ts": "2026-03-15T17:02:21.346422Z", "what_worked": "脚本3拆解RWA三大风险（监管、代码、托管），提示跨学科团队必要性", "what_to_try_next": "补充真实RWA失败案例，提升风险场景可信度", "note": "run_id=daily_20260315_165924, script_3, content_category=风险提示, expression_variant=清单式"}
