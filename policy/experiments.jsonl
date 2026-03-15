@@ -1,2 +1,3 @@
-{"ts":"2026-03-12T12:33:06Z","what_worked":"成功整合海南自贸港最新政策与数据要素市场行动计划，生成了关于数字资产合规的短视频脚本","what_to_try_next":"增加更多关于RWA和DePIN的具体案例分析，提升脚本的实操性","note":"run_id=20260312_123306"}
-{"ts":"2026-03-13T19:35:30Z","what_worked":"成功整合2026年2月最新监管通知与海南数据要素市场三年行动计划，生成了3篇关于数字资产合规、RWA代币化监管边界和DePIN应用的短视频脚本","what_to_try_next":"进一步细化不同表达方式（问答式、结论前置、故事化）的效果对比，优化脚本结构","note":"run_id=20260313_193530"}
+{"ts": "2026-03-15T17:02:21.346422Z", "what_worked": "整合10条信号：覆盖RWA监管协同、数据要素政策、DeFi合规框架、市场规模数据；生成3篇去模板脚本，聚焦监管协同、数据要素入表、风险提示", "what_to_try_next": "提升信号一手来源比例，增加官方公告与法规原文；优化抓取能力，避免snippet降级；验证每篇脚本Body字数>400", "note": "run_id=daily_20260315_165924, script_1, content_category=监管解读, expression_variant=问答式"}
+{"ts": "2026-03-15T17:02:21.346422Z", "what_worked": "脚本2聚焦数据要素市场化与海南自贸港，结合政策加计扣除优惠，提供境内合规路径", "what_to_try_next": "增加具体案例（如海南企业数据资产入表实例），强化实操指导", "note": "run_id=daily_20260315_165924, script_2, content_category=政策解读, expression_variant=对比式"}
+{"ts": "2026-03-15T17:02:21.346422Z", "what_worked": "脚本3拆解RWA三大风险（监管、代码、托管），提示跨学科团队必要性", "what_to_try_next": "补充真实RWA失败案例，提升风险场景可信度", "note": "run_id=daily_20260315_165924, script_3, content_category=风险提示, expression_variant=清单式"}

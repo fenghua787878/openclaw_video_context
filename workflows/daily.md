@@ -197,9 +197,9 @@
 
 - 将本步记为 `skipped`
 
-### Step 5 — 调用 email_send（可选）
+### Step 5 — 调用 邮件发送（可选）
 
-仅当 Step 4 已生成 `notification.md`，且通知未被显式关闭（`enabled=false`）并存在有效收件人时，才调用 **`email_send`**。
+仅当 Step 4 已生成 `notification.md`，且通知未被显式关闭（`enabled=false`）并存在有效收件人时，才调用 **`,邮件发送`**。
 
 调用时显式提供：
 
