@@ -4,6 +4,7 @@
 Writer 根据策略、历史实验与 Scout 产出的简报，生成固定结构的 **script.md**（可包含 1–N 篇脚本），并向 **policy/experiments.jsonl** 追加 1–3 行 JSONL，完成当次运行的记录沉淀。文本升级决策应以人工回填的视频效果数据为准，不再仅凭主观总结。
 
 ## 输入
+- **模型配置（推荐）**：`qwen3-max-2026-01-23` 与 `Claude Sonnet 4.5`，用于双模型并行生成两份候选脚本。
 - **policy/policy.md**：主题、风格、禁区、输出形态
 - **policy/experiments.jsonl**：仅读取**最后 30 行**，作为「最近做了什么、效果如何」的上下文
 - **runs/<run_id>/brief.md**：策展简报（Theme / Top angles / Evidence / Risks / Sources）
@@ -16,6 +17,19 @@ Writer 根据策略、历史实验与 Scout 产出的简报，生成固定结构
 3. **Notion 数据库新增行（推荐）**：将本轮每篇脚本写入「文本ID、文本正文、播放量、点赞量、粉丝量、内容方向、表达方式」字段，播放相关数值由人工后续补填。
 
 ---
+
+## 双模型生成要求（新增）
+- 最终成稿阶段应分别调用以下模型各生成 1 份脚本：
+  1. `qwen3-max-2026-01-23`
+  2. `Claude Sonnet 4.5`
+- 两份脚本都应写入同一个 `runs/<run_id>/script.md`，建议使用如下分段：
+  - `## 候选 A（qwen3-max-2026-01-23）`
+  - `## 候选 B（Claude Sonnet 4.5）`
+- 两份候选都必须满足本文件对结构、字数、合规、去重与新鲜度的要求。
+- 若其中一个模型调用失败：
+  - 保留另一份候选并继续流程；
+  - 在 `policy/experiments.jsonl` 的 note 中记录失败模型与原因；
+  - 在 `state.degradation` 记录 `model_generation_partial`。
 
 ## script.md 固定结构
 
@@ -142,8 +156,8 @@ Writer 根据策略、历史实验与 Scout 产出的简报，生成固定结构
 ## 执行顺序（由 OpenClaw 执行）
 
 1. **读取**：policy/policy.md、policy/experiments.jsonl（最后 30 行）、runs/<run_id>/brief.md，可选 runs/<run_id>/items.jsonl。
-2. **生成**：根据上述输入生成 script.md 内容，确保 Body 3 points 均引用 evidence（signal_id + source），Sources 带 URL。
-3. **写入**：将 script 内容写入 `runs/<run_id>/script.md`。
+2. **双模型生成**：分别调用 `qwen3-max-2026-01-23` 与 `Claude Sonnet 4.5` 生成两份候选脚本。
+3. **汇总写入**：将两份候选统一写入 `runs/<run_id>/script.md`（候选 A / 候选 B）。
 4. **追加**：向 `policy/experiments.jsonl` 追加 1–3 行 JSONL。若本轮暂无人工回填，先写旧格式结论；有人工回填时优先写推荐字段（含 content_category / expression_variant / metrics）。
 5. **生成 Notion 写入命令**：执行 `python tools/exec/sync_script_to_notion.py --run-id <run_id> --content-category <内容方向> --expression-variant <表达方式>`，输出 `runs/<run_id>/notion_sync_commands.txt`。
 6. **回填到 Notion（推荐）**：逐条执行 `notion_sync_commands.txt` 中的 `调用 notion [command]`，将本轮脚本基础信息写入「文本升级观测」数据库，供人工填写播放效果。

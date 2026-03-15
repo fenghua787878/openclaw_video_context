@@ -161,11 +161,12 @@
 2. 结合 `policy/policy.md`
 3. 参考 `policy/experiments.jsonl` 的最近经验
 4. 若可用，参考 Notion「文本升级观测」中的人工效果数据
-5. 生成 `script.md`（Body 小标题必须自定义，不得固定为“要点一/二/三”）
-6. 对照最近历史脚本与 Notion 记录做新鲜度去重：相似稿件重写或删除，仅保留新增事实充分的版本
-7. 向 `policy/experiments.jsonl` 追加本轮经验记录
-8. 先执行 `python tools/exec/sync_script_to_notion.py --run-id <run_id> --content-category <内容方向> --expression-variant <表达方式>` 生成逐条写入命令（落盘到 `runs/<run_id>/notion_sync_commands.txt`）
-9. 再逐条执行上述命令（调用形式：`调用 notion [command]`），把本轮脚本写入「文本升级观测」
+5. 分别调用 `qwen3-max-2026-01-23` 与 `Claude Sonnet 4.5` 各生成 1 份候选脚本
+6. 合并写入 `script.md`（候选 A/候选 B），且 Body 小标题必须自定义，不得固定为“要点一/二/三”
+7. 对照最近历史脚本与 Notion 记录做新鲜度去重：相似稿件重写或删除，仅保留新增事实充分的版本
+8. 向 `policy/experiments.jsonl` 追加本轮经验记录（记录两个模型各自表现与失败情况）
+9. 先执行 `python tools/exec/sync_script_to_notion.py --run-id <run_id> --content-category <内容方向> --expression-variant <表达方式>` 生成逐条写入命令（落盘到 `runs/<run_id>/notion_sync_commands.txt`）
+10. 再逐条执行上述命令（调用形式：`调用 notion [command]`），把本轮脚本写入「文本升级观测」
 
 若 `brief.md` 缺失：
 
@@ -199,7 +200,7 @@
 
 ### Step 5 — 调用 邮件发送（可选）
 
-仅当 Step 4 已生成 `notification.md`，且通知未被显式关闭（`enabled=false`）并存在有效收件人时，才调用 **`,邮件发送`**。
+仅当 Step 4 已生成 `notification.md`，且通知未被显式关闭（`enabled=false`）并存在有效收件人时，才调用 **`email_send`**。
 
 调用时显式提供：
 
